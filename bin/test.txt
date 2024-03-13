@@ -1,0 +1,10 @@
+.text
+	mov %a 24
+	mov %b 66
+	mov %c &245
+	pop %a
+	push 78
+	push %a
+	push &78
+	cmp %a %b
+	hlt 

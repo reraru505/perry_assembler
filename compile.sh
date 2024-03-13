@@ -1,6 +1,6 @@
 #bin/bash!
 
-gcc *.c -I. -g -o ../bin/PASM &&\
+gcc -g *.c -I. -o bin/PASM &&\
     rm *.sh~ \
     *.h~  \
     *.c~

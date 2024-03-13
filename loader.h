@@ -1,6 +1,9 @@
 #pragma once
 
-#include "m_types.h"
+#include "mytypes.h"
+#include "string.h"
+#include "stdio.h"
+#include "stdlib.h"
 
 
 bool m_isspace(char c){
@@ -74,10 +77,17 @@ Token * flatten_token_list(Node * n , Length_tracker * lt){
   Token * tok_array = (Token * ) calloc(lt->token_list_len,
 					sizeof(Token));
 
-  for(int i = (lt->token_list_len - 1) ; i > -1 ; i-- , n = n->next){
-
-    tok_array[i] = n->token;
+  for(int i = 0 ; i < lt->token_list_len ; i++){
+    tok_array[i].name = calloc(32,sizeof(char));
   }
+  
+  for(int i = (lt->token_list_len - 1) ; i > -1 ; i-- , n = n->next){
+    strcpy(tok_array[i].name , n->token.name);
+    tok_array[i].type = 0;
+    
+  }
+ 
+  lt->token_array_len = lt->token_list_len;
   
   return tok_array;
   

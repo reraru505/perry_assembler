@@ -1,80 +1,49 @@
 #pragma once
-#include "stdint.h"
 
-#define STACK_SIZE 10000000
+//simple types
 
-typedef enum AM{
+typedef unsigned char  u8;
+typedef unsigned int  u32;
+typedef unsigned long u64;
 
-  IMPLIED,           //no operand 
-  IMMEDIATE,         //literal is a data value
-  REGISTER,          //register contains a data value
-  REGISTER_INDIRECT, //register contains an address value
-  INDIRECT           //literal is an address value 
+typedef float  f32;
+typedef double f64;
+
+typedef u8 bool;
+#define true 1
+#define false 0
+
+//enums 
+typedef enum Token_type {
+  ADDRESS,
+  OPCODE,
+  REGISTER,
+  LABEL,
+  LITERAL,
+  DIRECTIVE
+} Token_type;
+
+//complex types
+
+
+typedef struct Length_tracker{
+  int token_list_len;
+  int token_array_len;
+  int code_len;
   
-}AM;
+} Length_tracker;
 
-typedef enum FLAG{
-  NOT_SET,
-  EQUAL,
-  GREATER,
-  LESSER
-}FLAG;
 
-typedef enum OPC{
+typedef struct Token {
 
-  MOV,
-  HLT,
-  CALL,
-  RET,
-  JE,
-  JL,
-  JG,
-  JNE,
-  CMP,
-  CLF,
-  PUSH,
-  POP,
-
-  SYSCALL,
-
-  ADD,
-  SUB,
-  DIV,
-  MUL,
-  MOD,
+  Token_type type;
+  char * name;
   
-  
-  
-}OPC;
+} Token;
 
-typedef struct IP{
+typedef struct Node{
 
-  uint32_t mode;
-  uint32_t code;
-  uint32_t argx;
-  uint32_t argy;
-  uint32_t argz;
+  struct Node * next;
+  Token token;
   
-}IP;
-
-typedef struct DATA{
-  uint32_t * stack;
-  
-}DATA;
-
-typedef struct PVM{
-
-  uint32_t pc;
-  uint32_t ret;
-  IP ip;
-  
-  uint32_t gpr[8];
-
-  FLAG flag;
-  
-  uint32_t sp;
-  uint32_t bp;
-  uint32_t st;
-  uint32_t sb;
-  
-}PVM;
+} Node;
