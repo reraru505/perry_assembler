@@ -1,4 +1,8 @@
+.data
+	db sailendra "hello world"
+	db chewang "hello smit"
 .text
+_happle
 	mov %a 24
 	mov %b 66
 	mov %c &245
@@ -6,5 +10,10 @@
 	push 78
 	push %a
 	push &78
+	ret
+	call _happle
+_lapple
 	cmp %a %b
+	call _lapple 
+	add %a %c %b
 	hlt 

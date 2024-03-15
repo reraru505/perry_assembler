@@ -1,126 +1,94 @@
-#include "stdio.h"
-#include "stdlib.h"
-#include "string.h"
+#include <stdio.h>
+#include <stdlib.h>
 #include "mytypes.h"
+#include "string.h"
 
-#define NO_OF_OPCODES 17
+u32 enumerate_expressions(Token * tokarr , u32 start , u32 len){
 
+  u32 counter = 0;
+  
+  for(int i = start ; i < len ; i++ ){
+    if(tokarr[i].type == OPCODE or tokarr[i].type == LABEL){
+      counter++;
+    }
+    if(!strcasecmp(tokarr[i].name,"call") or
+       !strcasecmp(tokarr[i].name,"jz") or
+       !strcasecmp(tokarr[i].name,"jl") or
+       !strcasecmp(tokarr[i].name,"je") or
+       !strcasecmp(tokarr[i].name,"jne")){
+      counter--;
+    }
+  }
 
-void init_optable(char ** s)
-{
-  s[0]= "mov";
-  s[1]="hlt";
-  s[2]="print";
-  s[3]="pop";
-  s[4]="push";
-  s[5]="add";
-  s[6]="sub";
-  s[7]="mul";
-  s[8]="div";
-  s[9]="call";
-  s[10]="je";
-  s[11]="mod";
-  s[12]="ret";
-  s[13]="cmp";
-  s[14]="jne";
-  s[15]="jge";
-  s[16]="jle";
+  return counter;
 }
 
 
 
-bool isOpcode(char * s, char **table){
-  
-  for (int i = 0 ; i < NO_OF_OPCODES ; i++){
+Expression * make_expression_array(Token * tokarr , u32 start , u32 len ){
+
+  u32 exp_arr_len = enumerate_expressions(tokarr , start , len);
+
+  Expression * exp_arr = (Expression *) calloc(exp_arr_len ,sizeof(Expression));
+
+  for(u32 i = 0 ; i < exp_arr_len ; i++){
+    exp_arr[i].m1.name = (char *) calloc(32 ,sizeof(char));
+    exp_arr[i].m2.name = (char *) calloc(32 ,sizeof(char));
+    exp_arr[i].m3.name = (char *) calloc(32 ,sizeof(char));
+    exp_arr[i].m4.name = (char *) calloc(32 ,sizeof(char));
     
-    if(strcasecmp(s,table[i])==0){
-      return true;
+  }
+  
+  for(u32 i = 0 ; i < exp_arr_len ; i++){
+
+    exp_arr[i].m1.type = DONT_CARE;
+    exp_arr[i].m2.type = DONT_CARE;
+    exp_arr[i].m3.type = DONT_CARE;
+    exp_arr[i].m4.type = DONT_CARE;
+
+    
+    if(tokarr[start].type == OPCODE and start < len ){
+      exp_arr[i].m1.type = tokarr[start].type;
+      strcpy(exp_arr[i].m1.name,tokarr[start].name);
+      start++;
+
+      if((tokarr[start].type != OPCODE ) and start < len){
+	exp_arr[i].m2.type = tokarr[start].type;
+	strcpy(exp_arr[i].m2.name,tokarr[start].name);
+	start++;
+      }
+      
+      if((tokarr[start].type != OPCODE and tokarr[start].type != LABEL) and start < len){
+	exp_arr[i].m3.type = tokarr[start].type;
+        strcpy(exp_arr[i].m3.name,tokarr[start].name);
+	start++;
+      }
+
+      if((tokarr[start].type != OPCODE and tokarr[start].type != LABEL) and start < len){
+	exp_arr[i].m4.type = tokarr[start].type;
+        strcpy(exp_arr[i].m4.name,tokarr[start].name);
+	start++;
+      }
+      
+    }else if(tokarr[start].type == LABEL and start < len){
+      exp_arr[i].m1.type = tokarr[start].type;
+      strcpy(exp_arr[i].m1.name,tokarr[start].name);
+      start++;
     }
     
- }
-  return false;
-}
-
-
-bool isReg(char * s){
-
-  if(s[0] == '%'){
-    return true;
   }
 
-  return false;
+  return exp_arr;
   
+
 }
 
-bool isAddress(char * s){
+//debug mode function
+char * give_token_name(Token token){
 
-  if(s[0] == '&'){
-    return true;
+  if(token.type == DONT_CARE){
+    return "NULL";
   }
+  return token.name;
 
-  return false;
-  
 }
-
-
-bool isDirective(char * s){
-
-  if(s[0] == '.'){
-    return true;
-  }
-
-  return false;
-  
-}
-
-bool isLabel(char * s){
-
-  if(s[0] == '_'){
-    return true;
-  }
-
-  return false;
-}
-
-Token_type checker(char *s, char **table){
-
-  if(isReg(s))
-  return REGISTER;
-  else if(isAddress(s))
-  return ADDRESS;
-  else if(isDirective(s)) 
-  return DIRECTIVE;
-  else if(isLabel(s))
-  return LABEL;
-  else if(isOpcode(s,table))
-  return OPCODE;
-  else
-  return LITERAL;
-}
-
-void parse(Token * tokarr ,int len){
-  
-  char ** opt = calloc(NO_OF_OPCODES,sizeof(char*));
-  
-  for(int i = 0 ; i < NO_OF_OPCODES ; i++){
-   
-    opt[i] = calloc(32,sizeof(char));
-  }
-  
-  init_optable(opt);
-
-  
-  for (int i = 0 ; i < NO_OF_OPCODES ; i++){
-    printf("%s \n",opt[i]);
-    
-  }
-  
-  for (int i  = 0 ; i < len ;i++){
-    printf("checking for [%s]\n",tokarr[i].name);
-    tokarr[i].type = checker(tokarr[i].name , opt);  
-  
-  }
-  
-}
-
-
