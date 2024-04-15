@@ -65,9 +65,6 @@ void pasm(char * src ){
 
   }
 
-  //for( u32 i = 0 ;  i < explen ; i++){
-  //  printf("Addressing mode == %d\n",give_addressing_mode(unitarr[i]) );
-  //}
 
   u32 llen = enumerate_labels(exparr , explen);
 
