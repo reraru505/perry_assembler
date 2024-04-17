@@ -35,6 +35,7 @@ typedef enum Token_type {
   LABEL,
   LITERAL,
   DIRECTIVE,
+  DATA,
   DONT_CARE
 } Token_type;
 
@@ -117,6 +118,14 @@ typedef struct Label_table{
   char * name;
   u32 index;
 } Label_table;
+
+
+typedef struct Data_address_table{
+
+  char * name;
+  u32 index;
+  
+} Data_address_table;
 
 typedef struct IP{
 

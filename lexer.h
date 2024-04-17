@@ -82,23 +82,36 @@ bool isLabel(char * s){
   return false;
 }
 
-Token_type checker(char *s, char **table){
+bool isData(Data_address_table * d , u32 len , char * s){
 
-  if(isReg(s))
-  return REGISTER;
-  else if(isAddress(s))
-  return ADDRESS;
-  else if(isDirective(s)) 
-  return DIRECTIVE;
-  else if(isLabel(s))
-  return LABEL;
-  else if(isOpcode(s,table))
-  return OPCODE;
-  else
-  return LITERAL;
+  for(int i = 0 ;  i < len ;i++){
+    if(!strcasecmp(s , d[i].name)){
+      return true;
+    }
+  }
+
+  return false;
 }
 
-void parse(Token * tokarr ,int len , u32 start){
+Token_type checker(char *s, char **table ,Data_address_table * d , u32 l  ){
+
+  if(isReg(s))
+    return REGISTER;
+  else if(isAddress(s))
+    return ADDRESS;
+  else if(isDirective(s)) 
+    return DIRECTIVE;
+  else if(isLabel(s))
+    return LABEL;
+  else if(isOpcode(s,table))
+    return OPCODE;
+  else if(isData(d , l , s))
+    return DATA;
+  else
+    return LITERAL;
+}
+
+void parse(Token * tokarr ,int len , u32 start , Data_address_table * d , u32 l){
   
   char ** opt = calloc(NO_OF_OPCODES,sizeof(char*));
   
@@ -117,7 +130,7 @@ void parse(Token * tokarr ,int len , u32 start){
   
   for (u32  i  = start ; i < len ;i++){
     printf("checking for [%s]\n",tokarr[i].name);
-    tokarr[i].type = checker(tokarr[i].name , opt);  
+    tokarr[i].type = checker(tokarr[i].name , opt ,  d , l);  
   
   }
   

@@ -5,7 +5,7 @@
 #include "string.h"
 #include "map_label_address.h"
 
-u32 resolve_args(Token_type t , char * c , Label_table * l , u32 llen){
+u32 resolve_args(Token_type t , char * c , Label_table * l , u32 llen , Data_address_table * d , u32 dlen){
 
   if(t == DONT_CARE){
     return 0;
@@ -48,23 +48,71 @@ u32 resolve_args(Token_type t , char * c , Label_table * l , u32 llen){
       }
     }
     
+  }else if( t == DATA){
+
+    for(u32 i = 0 ; i < dlen ; i++){
+      if(!strcasecmp(d[i].name,c)){
+	return d[i].index;
+      }
+    }
+    
   }
 
 }
 
+IP gen_header(u32 data_len , u32 text_len , Label_table * l , u32 llen){
 
-IP * make_instructions(UNIT * u , u32 len , Label_table * l , u32 llen){
+  IP header;
+  header.mode = data_len + text_len;
+  header.code = data_len;
+  header.argx = text_len;
+  
+  for(u32 i = 0 ; i < llen ; i++){
+    if(!strcasecmp(l[i].name,"_start")){
+      header.argy = l[i].index;
+    }
+  }
+
+  header.argz = 0;
+
+  return header;
+  
+}
+
+IP * make_instructions(UNIT * u , u32 len , Label_table * l , u32 llen , Data_address_table * d , u32 dlen){
 
   IP * iparr =(IP *) calloc(len , sizeof(IP));
   
   for(u32 i = 0 ; i < len ; i++){
     iparr[i].mode = give_addressing_mode(u[i]);
     iparr[i].code = u[i].opcode;
-    iparr[i].argx = resolve_args(u[i].arg1,u[i].arg1_data , l , llen);
-    iparr[i].argy = resolve_args(u[i].arg2,u[i].arg2_data , l , llen);
-    iparr[i].argz = resolve_args(u[i].arg3,u[i].arg3_data , l , llen);
+    iparr[i].argx = resolve_args(u[i].arg1,u[i].arg1_data , l , llen , d , dlen);
+    iparr[i].argy = resolve_args(u[i].arg2,u[i].arg2_data , l , llen , d , dlen);
+    iparr[i].argz = resolve_args(u[i].arg3,u[i].arg3_data , l , llen , d , dlen);
   }
 
   return iparr;
+
+}
+
+void write_binary(IP * header , IP * data , IP * text , u32 datalen , u32 texlen){
+
+  u32 all_len = datalen + texlen + 1;
+  IP * buffer_for_bin = (IP *) calloc(all_len , sizeof(IP));
+
+  memcpy(buffer_for_bin , header , sizeof(IP));
+  memcpy(buffer_for_bin + sizeof(IP) , data , datalen * sizeof(IP));
+  memcpy(buffer_for_bin + sizeof(IP) + (datalen * sizeof(IP)) , text , texlen * sizeof(IP));
+
+  free(data);
+  free(text);
+
+  FILE * f = fopen("b.out", "wb");
+
+  fwrite(buffer_for_bin , sizeof(IP) ,all_len ,f);
+
+  fclose(f);
+
+  free(buffer_for_bin);
 
 }
