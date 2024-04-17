@@ -98,12 +98,46 @@ IP * make_instructions(UNIT * u , u32 len , Label_table * l , u32 llen , Data_ad
 void write_binary(IP * header , IP * data , IP * text , u32 datalen , u32 texlen){
 
   u32 all_len = datalen + texlen + 1;
-  IP * buffer_for_bin = (IP *) calloc(all_len , sizeof(IP));
+  char * buffer = (char *) calloc(all_len , sizeof(IP));
 
-  memcpy(buffer_for_bin , header , sizeof(IP));
-  memcpy(buffer_for_bin + sizeof(IP) , data , datalen * sizeof(IP));
-  memcpy(buffer_for_bin + sizeof(IP) + (datalen * sizeof(IP)) , text , texlen * sizeof(IP));
+  char * forheader = (char *) header;
+  char * fordata = (char * ) data;
+  char * fortext = (char *) text;
 
+  u32 w = 0;
+  u32 x = sizeof(IP)/sizeof(char);
+  u32 y = (sizeof(IP) * datalen ) /sizeof(char);
+  u32 z = (sizeof(IP) * texlen )/sizeof(char);
+  
+  for(u32 i = 0 ;  i < x ; i++){
+    buffer[w] = forheader[i];
+    w++;
+  }
+
+  
+  for(u32 i = 0 ;  i < y ; i++){
+    buffer[w] = fordata[i];
+    w++;
+  }
+
+  
+  for(u32 i = 0 ;  i < z ; i++){
+    buffer[w] = fortext[i];
+    w++;
+  }
+  
+  IP * buffer_for_bin = (IP *) buffer;
+    
+  for(int i = 0 ; i < all_len ; i++){
+    printf(" %d ",buffer_for_bin[i].mode);
+    printf(" %d ",buffer_for_bin[i].code);
+    printf(" %d ",buffer_for_bin[i].argx);
+    printf(" %d ",buffer_for_bin[i].argy);
+    printf(" %d \n",buffer_for_bin[i].argz);
+    
+  }
+
+  
   free(data);
   free(text);
 
